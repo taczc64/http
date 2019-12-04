@@ -1205,7 +1205,9 @@ func (cw *chunkWriter) writeHeader(p []byte) {
 	if cw.wroteHeader {
 		return
 	}
-	cw.wroteHeader = true
+	if cw.res.status != StatusContinue {
+		cw.wroteHeader = true
+	}
 
 	w := cw.res
 	keepAlivesEnabled := w.conn.server.doKeepAlives()
