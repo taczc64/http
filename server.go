@@ -1123,7 +1123,10 @@ func (w *response) WriteHeader(code int) {
 		return
 	}
 	checkWriteHeaderCode(code)
-	w.wroteHeader = true
+	if code != StatusContinue {
+		w.wroteHeader = true
+	}
+
 	w.status = code
 
 	if w.calledHeader && w.cw.header == nil {
