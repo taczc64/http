@@ -390,7 +390,7 @@ func (cw *chunkWriter) Write(p []byte) (n int, err error) {
 }
 
 func (cw *chunkWriter) flush() {
-	if !cw.wroteHeader {
+	if !cw.wroteHeader && cw.res.status != StatusContinue{
 		cw.writeHeader(nil)
 	}
 	cw.res.conn.bufw.Flush()
@@ -1112,6 +1112,7 @@ func relevantCaller() runtime.Frame {
 }
 
 func (w *response) WriteHeader(code int) {
+	fmt.Println("want to write code:", code, " have write head?:", w.wroteHeader)
 	if w.conn.hijacked() {
 		caller := relevantCaller()
 		w.conn.server.logf("http: response.WriteHeader on hijacked connection from %s (%s:%d)", caller.Function, path.Base(caller.File), caller.Line)
@@ -1637,7 +1638,7 @@ func (w *response) closedRequestBodyEarly() bool {
 }
 
 func (w *response) Flush() {
-	if !w.wroteHeader {
+	if !w.wroteHeader && w.status != StatusContinue{
 		w.WriteHeader(StatusOK)
 	}
 	w.w.Flush()
